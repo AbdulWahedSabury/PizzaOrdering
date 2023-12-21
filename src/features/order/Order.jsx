@@ -1,6 +1,6 @@
 // Test ID: IIDSAT
 
-import { useLoaderData } from "react-router-dom";
+import { useFetcher, useLoaderData } from "react-router-dom";
 import { getOrder } from "../../services/apiRestaurant";
 import OrderItem from "../order/OrderItem";
 import {
@@ -8,6 +8,8 @@ import {
   formatCurrency,
   formatDate,
 } from "../../utils/helpers";
+import { useEffect } from "react";
+import UpdatePriority from "./UpdatePriority";
 export async function loader({ params }) {
   const order = await getOrder(params.orderId);
   return order;
@@ -25,10 +27,18 @@ function Order() {
     cart,
   } = order;
 
+  const fetcher = useFetcher();
+  useEffect(
+    function () {
+      if (!fetcher.data && fetcher.state === "idle") fetcher.load("/menu");
+    },
+    [fetcher],
+  );
+
   const deliveryIn = calcMinutesLeft(estimatedDelivery);
 
   return (
-    <div className="m-5 space-y-4 divide-y divide-stone-200 border-b px-6 py-5">
+    <div className=" space-y-4 divide-y divide-stone-200 border-b px-6 py-5">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-xl font-bold ">Order #{id} Status</h2>
         <div className="flex gap-4">
@@ -56,7 +66,15 @@ function Order() {
 
       <ul className="divide-y divide-stone-200 px-6 py-5">
         {cart.map((item) => (
-          <OrderItem item={item} key={item.pizzaId} />
+          <OrderItem
+            item={item}
+            key={item.pizzaId}
+            isLoadingIngredients={fetcher.state === "loading"}
+            ingredients={
+              fetcher?.data?.find((el) => el.id === item.pizzaId)
+                ?.ingredients ?? []
+            }
+          />
         ))}
       </ul>
 
@@ -67,6 +85,7 @@ function Order() {
           To pay on delivery: {formatCurrency(orderPrice + priorityPrice)}
         </p>
       </div>
+      {!priority && <UpdatePriority />}
     </div>
   );
 }
