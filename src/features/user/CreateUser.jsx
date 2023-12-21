@@ -26,7 +26,7 @@ function CreateUser() {
         placeholder="Your full name"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
-        className="h-10 w-72 rounded-full px-3 py-2 text-sm transition-all duration-300 focus:outline-none focus:ring focus:ring-yellow-400"
+        className="h-10 w-72 rounded-full mb-4 px-3 py-2 text-sm transition-all duration-300 focus:outline-none focus:ring focus:ring-yellow-400"
       />
       ) : (
         <Button type='primary' to='/menu'>Start ordering...</Button>
